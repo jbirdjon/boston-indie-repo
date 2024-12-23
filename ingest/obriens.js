@@ -2,9 +2,12 @@
 import axios from 'axios';
 import * as cheerio from 'cheerio';
 
-url= "https://obrienspubboston.com/shows/?filter_genre=shoegaze,rock,noise-rock,indie-rock,indie-folk,garage,alternative,electronic,emo&unfilter=1"
+const obriensage = 21;
 
 export async function obriens() {
+
+  const url= "https://obrienspubboston.com/shows/?filter_genre=shoegaze,rock,noise-rock,indie-rock,indie-folk,garage,alternative,electronic,emo&unfilter=1"
+
   try {
     const response = await axios.get(url);
     const $ = cheerio.load(response.data);
@@ -45,8 +48,9 @@ export async function obriens() {
       });
     });
     console.log('got the events');
+    return events;
 } catch (error) {
   console.error('Error fetching the page:', error);
+  return [];
 }
-return events;  // Return the scraped events to the caller 
 }

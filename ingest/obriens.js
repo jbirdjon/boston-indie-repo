@@ -2,6 +2,8 @@
 import axios from 'axios';
 import * as cheerio from 'cheerio';
 
+url= "https://obrienspubboston.com/shows/?filter_genre=shoegaze,rock,noise-rock,indie-rock,indie-folk,garage,alternative,electronic,emo&unfilter=1"
+
 export async function obriens() {
   try {
     const response = await axios.get(url);

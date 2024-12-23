@@ -14,13 +14,16 @@ datasource db {
 }
 
 
-model ShowDate {
-  id        String   @id @map("_id") @default(cuid())
-  date      DateTime
+model Event {
+  id        String   @id @map("_id") @default(cuid()) // Use cuid for MongoDB ID
+  title     String   // Event title
+  link      String   // Event link (URL)
+  date      DateTime // Event date
+  startTime DateTime // Event start time
+  age       Int      // Age restriction (e.g., 21+)
+  venue     String   // Venue name, always "O'Brien's Pub"
+  price     Int      // Event price, always 15 dollars
+  bands     String[] // Array of band names
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  bands     String[]
-  venue     String
-  price     Float 
-
 }

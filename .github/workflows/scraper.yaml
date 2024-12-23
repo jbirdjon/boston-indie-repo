@@ -1,0 +1,32 @@
+name: Scrape Event Data
+
+on:
+  schedule:
+    # This will run at midnight UTC every day
+    - cron: '0 0 * * *'
+  workflow_dispatch:  # Allows manual triggering of the workflow
+
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Checkout the repository
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      # Step 2: Set up Node.js
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '16'  # Change this to your preferred Node.js version
+
+      # Step 3: Install dependencies
+      - name: Install dependencies
+        run: npm install
+
+      # Step 4: Run the scraper
+      - name: Run scraper
+        run: node scraper.js  # Replace with the actual path to your scraper script
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}  # Example: store DB credentials as secrets

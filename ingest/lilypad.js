@@ -1,67 +1,92 @@
 import axios from 'axios';
-import cheerio from 'cheerio';
+import * as cheerio from 'cheerio';
+
+function parseDescription(description) {
+    // Split description by the '/' delimiter
+    const descElements = description.split('/').map(element => element.trim());
+  
+    // Initialize variables for price and start time
+    let price = '';
+    let startTime = '';
+  
+    // Loop through each element in the description
+    descElements.forEach(element => {
+      // If the element contains a '$', it's related to the price
+      if (element.includes('$')) {
+        price = element; // Capture the entire price string
+      }
+  
+      // If the element contains time (e.g., 'Start 8:30pm' or 'Doors 7pm'), capture it
+      const timeMatch = element.match(/(\d{1,2}(:\d{2})?(am|pm)?)/i); // Match time in format like 7pm, 8:30pm, 7:00pm
+      if (timeMatch) {
+        // If 'Start' or 'Doors' is found with time, we assign it as start time
+        if (element.toLowerCase().includes('start') || element.toLowerCase().includes('doors')) {
+          startTime = timeMatch[0]; // Use the matched time (e.g., 8:30pm)
+        }
+      }
+    });
+  
+    // Return parsed data
+    return { price, startTime };
+  }
 
 // Function to scrape concerts
-export async function Lilypad() {
-  const url = 'https://your-target-website.com';  // Replace with your actual URL
+export async function lilypad() {
+  const url = 'https://www.lilypadinman.com';  // Replace with your actual URL
 
   try {
-    // Step 1: Fetch the HTML content
     const response = await axios.get(url);
-    const $ = cheerio.load(response.data);  // Load the HTML content into cheerio
+    const $ = cheerio.load(response.data);
 
     console.log('Page loaded');
 
-    // Step 2: Initialize an array to store events
     const events = [];
+    let bands = [];
+    const age = 18;
+    const venue = "The Lilypad";
 
-    // Step 3: Loop through each event item
     $('div.eventlist-column-info').each((index, element) => {
-      const title = $(element).find('h1.eventlist-title a').text().trim();
-      const link = $(element).find('h1.eventlist-title a').attr('href');
-      const date = $(element).find('time.event-date').attr('datetime');
-      const time = $(element).find('time.event-time-12hr-start').text().trim();
-      const venue = $(element).find('li.eventlist-meta-address').first().text().trim();
-      const price = $(element).find('div.eventlist-excerpt p').text().trim();
-      const categories = $(element).find('div.eventlist-cats').text().toLowerCase();
-      const description = $(element).find('div.eventlist-excerpt').text().toLowerCase();
+      let title = $(element).find('h1.eventlist-title a').text().trim();
+      let link = $(element).find('h1.eventlist-title a').attr('href');
+      let date = $(element).find('time.event-date').attr('datetime');
+      let time = $(element).find('time.event-time-12hr-start').text().trim();
+      let price = $(element).find('div.eventlist-excerpt p').text().trim();
+      let categories = $(element).find('div.eventlist-cats').text().toLowerCase();
+      let description = $(element).find('div.eventlist-excerpt').text().toLowerCase();
 
-      // Step 4: Check if any excluded words appear
+      // Check if any excluded words appear
       if (
         categories.includes('jazz') || 
         categories.includes('bebop') || 
         description.includes('open mic') || 
         description.includes('jazz') || 
-        description.includes('bebop')
+        description.includes('bebop') ||
+        description.includes('winter break') ||
+        title.includes('Yoga') ||
+        title.includes('Variety Show')
       ) {
-        console.log(`Omitting event: ${title}`);  // Logging for debugging
-        return;  // Skip this event
+        console.log(`Omitting event: ${title}`);  
+        return;  
       }
+      const { parsedPrice, startTime } = parseDescription(description);
+      bands = title.split('/').map(band => band.trim());
+      link = url + link;  
 
-      // Clean and format the data
-      const eventDetails = {
-        title,            // Event title (e.g., band names)
-        link,             // Event link
-        date,             // Date in the format "2025-01-03"
-        time,             // Time in 12-hour format
-        venue,            // Venue name (e.g., The Lilypad)
-        price,            // Price range
-      };
-
-      // Step 5: Push each event to the events array
-      events.push(eventDetails);
+      events.push({
+        title,
+        link,
+        date,
+        startTime,
+        age,
+        venue,
+        parsedPrice,
+        bands,
+      });
     });
 
-    // Step 6: Return the extracted events
     console.log('Scraped Events:', events);
     return events;
   } catch (error) {
     console.error('Error fetching the page:', error);
   }
 }
-
-// Example usage
-scrapeConcerts().then(events => {
-  // Process or display the events as needed
-  console.log(events);
-});

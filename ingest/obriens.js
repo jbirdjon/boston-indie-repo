@@ -38,6 +38,7 @@ export async function obriens() {
 
       // Add the event to the events array
       events.push({
+        title,
         bands,      // Array of band names
         link,
         date,

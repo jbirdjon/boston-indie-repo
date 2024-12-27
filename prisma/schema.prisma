@@ -16,7 +16,8 @@ datasource db {
 
 model Event {
   id        String   @id @map("_id") @default(cuid()) // Use cuid for MongoDB ID
-  link      String   // Event link (URL)
+  title     String   // Event title
+  link      String   @unique // Event link (URL)
   date      DateTime // Event date
   startTime String // Event start time
   age       Int      // Age restriction (e.g., 21+)
